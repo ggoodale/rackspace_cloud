@@ -20,7 +20,9 @@ Gem::Specification.new do |s|
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<patron>, [">= 0.3.2"])    
     else
+      s.add_dependency(%q<curb>, [">= 0.3.2"])
     end
   else
   end
