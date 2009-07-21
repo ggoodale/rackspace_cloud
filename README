@@ -1,0 +1,21 @@
+Example:
+
+>> require 'rackspace_cloud'
+>> cloud = RackspaceCloud::Base.new(:user => "gomer", :access_key => "aabbccddaabbccddaabbccdd")
+=> #<RackspaceCloud::Base:0x1065f44 @access_key="aabbccddaabbccddaabbccdd", @user="gomer">
+>> cloud.connect
+=> nil
+>> cloud.servers
+=> []
+>> new_server = cloud.create_server('development', 1, 8) # create a 256MB Ubunty 9.04 instance)
+=> #<RackspaceCloud::Server:0x1054a78 @image=#<RackspaceCloud::Image:0x10598e8 @name="Ubuntu 9.04 (jaunty)", @updated="2009-07-20T09:14:37-05:00", @created="2009-07-20T09:14:37-05:00", @status="ACTIVE", @rackspace_id=8>, @public_ips=["174.xxx.xxx.xxx"], @flavor=#<RackspaceCloud::Flavor:0x105d40c @name="256 slice", @ram=256, @disk=10, @rackspace_id=1>, @name="development", @progress=80, @adminPass="developmentU5fG3", @host_id="a7765fde333eead221", @private_ips=["10.xxx.xxx.xxx"], @rackspace_id=1, @status="BUILD">
+
+... wait a while ...
+
+>> new_server.refresh.status
+=> "ACTIVE"
+>> new_server.hard_reboot
+=> nil
+>> new_server.refresh.status
+=> "HARD_REBOOT"
+
