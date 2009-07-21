@@ -1,6 +1,6 @@
 module RackspaceCloud
   class Server
-    attr_reader :name, :status, :flavor_id, :image
+    attr_reader :name, :status, :flavor, :image
     attr_reader :rackspace_id, :host_id, :progress
     attr_reader :public_ips, :private_ips, :adminPass
 
@@ -10,19 +10,36 @@ module RackspaceCloud
       populate(server_json)
     end
     
+    def ready?
+      @status == 'ACTIVE'
+    end
+    
     def reboot
-      RackspaceCloud.request("/servers/#{@rackspace_id}/action", :method => :post, :data => {'reboot' => {'type' => 'SOFT'}})
+      action_request('reboot' => {'type' => 'SOFT'})
     end
     
     def hard_reboot
-      RackspaceCloud.request("/servers/#{@rackspace_id}/action", :method => :post, :data => {'reboot' => {'type' => 'HARD'}})      
+      action_request('reboot' => {'type' => 'HARD'})      
     end
     
-    def suspend
-      
+    def rebuild(new_image=nil)
+      action_request('rebuild' => {'imageId' => new_image ? new_image.to_i : image.to_i})      
+    end
+
+    def resize(new_flavor)
+      action_request('resize' => {'flavorId' => new_flavor.to_i})
+    end
+
+    def confirm_resize
+      action_request('confirmResize' => nil)
     end
     
-    def resume
+    def revert_resize
+      action_request('revertResize' => nil)
+    end
+
+    def delete
+      RackspaceCloud.request("/servers/#{@rackspace_id}", :method => :delete)
     end
 
     # update this server's status and progress by calling /servers/<id>
@@ -32,6 +49,10 @@ module RackspaceCloud
     end
     
     protected
+    
+    def action_request(data)
+      RackspaceCloud.request("/servers/#{@rackspace_id}/action", :method => :post, :data => data)      
+    end
     
     def populate(server_json)
       @name = server_json['name']

@@ -72,14 +72,14 @@ module RackspaceCloud
       session.headers['Accept'] = "application/json"
       session.headers['Content-Type'] = "application/json"
       session.post("#{path}", options[:data].to_json)
-    else
+    when :delete
+      session.delete("#{path}")
+    else      
       session.get("#{path}.json")
     end
 
     case response.status
-    when 200
-      JSON.parse(response.body) unless response.body.empty?
-    when 202 # Accepted
+    when 200, 202, 204
       JSON.parse(response.body) unless response.body.empty?
     else
       raise RuntimeError, "Error fetching #{path}: #{response.status}"

@@ -29,7 +29,7 @@ module RackspaceCloud
         'personality' => personality
       }}
       
-      RackspaceCloud::Server.new(RackspaceCloud.request("/servers", :method => :post, :data => new_server_data))
+      RackspaceCloud::Server.new(RackspaceCloud.request("/servers", :method => :post, :data => new_server_data)['server'])
     end
 
     protected
