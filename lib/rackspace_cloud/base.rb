@@ -10,11 +10,13 @@ module RackspaceCloud
 
     def connect
       RackspaceCloud.request_authorization(@user, @access_key)
+      RackspaceCloud.check_version_compatibility
       RackspaceCloud.populate_flavors
       RackspaceCloud.populate_images
+      RackspaceCloud.get_limits
     end
 
-    def servers
+    def servers(force_refresh=false)
       RackspaceCloud.request("/servers/detail")["servers"].collect {|server_json|
         RackspaceCloud::Server.new(server_json)
       }
@@ -30,6 +32,10 @@ module RackspaceCloud
       }}
       
       RackspaceCloud::Server.new(RackspaceCloud.request("/servers", :method => :post, :data => new_server_data)['server'])
+    end
+
+    def api_version
+      RackspaceCloud::API_VERSION
     end
 
     protected

@@ -42,6 +42,21 @@ module RackspaceCloud
       RackspaceCloud.request("/servers/#{@rackspace_id}", :method => :delete)
     end
 
+    def update_server_name(new_name)
+      RackspaceCloud.request("/servers/#{@rackspace_id}", :method => :put, :data => {"server" => {"name" => new_name}})
+    end
+
+    def update_admin_password(new_password)
+      RackspaceCloud.request("/servers/#{@rackspace_id}", :method => :put, :data => {"server" => {"adminPass" => new_password}})
+    end
+
+    def save_as_image(name)
+      image_json = RackspaceCloud.request("/images", :method => :post, :data => {'image' => {'name' => name, 'serverId' => @rackspace_id}})['image']
+      new_image = RackspaceCloud::Image.new(image_json)
+      RackspaceCloud::IMAGES[new_image.rackspace_id] = new_image
+      new_image
+    end
+
     # update this server's status and progress by calling /servers/<id>
     def refresh
       populate(RackspaceCloud.request("/servers/#{@rackspace_id}")['server'])
