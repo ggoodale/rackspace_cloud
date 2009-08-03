@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rackspace_cloud}
-  s.version = "0.3.0"
+  s.version = "0.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Grant Goodale"]
-  s.date = %q{2009-07-22}
+  s.date = %q{2009-08-03}
   s.description = %q{Gem enabling the management of Rackspace Cloud Server instances.}
   s.email = %q{grant@moreblinktag.com}
   s.extra_rdoc_files = [
@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
      "lib/rackspace_cloud/flavor.rb",
      "lib/rackspace_cloud/image.rb",
      "lib/rackspace_cloud/server.rb",
+     "lib/rackspace_cloud/shared_ip_group.rb",
      "rackspace_cloud.gemspec",
      "test/authentication_test.rb",
      "test/configuration_test.rb",
