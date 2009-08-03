@@ -1,17 +1,18 @@
 module RackspaceCloud
   class Server
-    attr_reader :name, :status, :flavor, :image
+    attr_reader :name, :status, :flavor, :image, :base
     attr_reader :rackspace_id, :host_id, :progress
     attr_reader :public_ips, :private_ips, :adminPass
 
     STATUS_VALUES = %w{ACTIVE BUILD REBUILD SUSPENDED QUEUE_RESIZE PREP_RESIZE VERIFY_RESIZE PASSWORD RESCUE REBOOT HARD_REBOOT SHARE_IP SHARE_IP_NO_CONFIG DELETE_IP UNKNOWN}
 
-    def initialize(server_json)
+    def initialize(base, server_json)
+      @base = base
       populate(server_json)
     end
     
     def ready?
-      @status == 'ACTIVE'
+      self.refresh.status == 'ACTIVE'
     end
     
     def reboot
@@ -38,42 +39,44 @@ module RackspaceCloud
       action_request('revertResize' => nil)
     end
 
+    def share_ip_address(ip_address, shared_ip_address_group, configure_server = true)
+      @base.request("/servers/#{@rackspace_id}/ips/public/#{ip_address}", 
+      :method => :put, :data => {'shareIp' => {'sharedIpGroupId' => shared_ip_address_group.to_i, 'configureServer' => configure_server}})
+    end
+
+    def unshare_ip_address(ip_address)
+      @base.request("/servers/#{@rackspace_id}/ips/public/#{ip_address}", :method => :delete)
+    end
+
     def delete
-      RackspaceCloud.request("/servers/#{@rackspace_id}", :method => :delete)
+      @base.request("/servers/#{@rackspace_id}", :method => :delete)
     end
 
     def update_server_name(new_name)
-      RackspaceCloud.request("/servers/#{@rackspace_id}", :method => :put, :data => {"server" => {"name" => new_name}})
+      @base.request("/servers/#{@rackspace_id}", :method => :put, :data => {"server" => {"name" => new_name}})
     end
 
     def update_admin_password(new_password)
-      RackspaceCloud.request("/servers/#{@rackspace_id}", :method => :put, :data => {"server" => {"adminPass" => new_password}})
-    end
-
-    def save_as_image(name)
-      image_json = RackspaceCloud.request("/images", :method => :post, :data => {'image' => {'name' => name, 'serverId' => @rackspace_id}})['image']
-      new_image = RackspaceCloud::Image.new(image_json)
-      RackspaceCloud::IMAGES[new_image.rackspace_id] = new_image
-      new_image
+      @base.request("/servers/#{@rackspace_id}", :method => :put, :data => {"server" => {"adminPass" => new_password}})
     end
 
     # update this server's status and progress by calling /servers/<id>
     def refresh
-      populate(RackspaceCloud.request("/servers/#{@rackspace_id}")['server'])
+      populate(@base.request("/servers/#{@rackspace_id}")['server'])
       self
     end
     
     protected
     
     def action_request(data)
-      RackspaceCloud.request("/servers/#{@rackspace_id}/action", :method => :post, :data => data)      
+      @base.request("/servers/#{@rackspace_id}/action", :method => :post, :data => data)      
     end
     
     def populate(server_json)
       @name = server_json['name']
       @status = server_json['status']
-      @flavor = RackspaceCloud::Flavor.lookup_by_id(server_json['flavorId'])
-      @image = RackspaceCloud::Image.lookup_by_id(server_json['imageId'])
+      @flavor = @base.flavors[server_json['flavorId']]
+      @image = @base.images[server_json['imageId']]
       @rackspace_id = server_json['id']
       @host_id = server_json['hostId']
       @progress = server_json['progress']
