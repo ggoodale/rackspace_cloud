@@ -17,7 +17,7 @@ module RackspaceCloud
   BASE_AUTH_URI = "https://auth.api.rackspacecloud.com"
         
   def RackspaceCloud.auth_url
-    @@auth_uri ||= URI.parse("#{BASE_AUTH_URI}/v#{API_VERSION}")
+    @auth_uri ||= URI.parse("#{BASE_AUTH_URI}/v#{API_VERSION}")
   end
    
   protected
@@ -29,9 +29,7 @@ module RackspaceCloud
   def RackspaceCloud.request_authorization(user, access_key)
     session = Patron::Session.new
     session.base_url = BASE_AUTH_URI
-    session.headers["X-Auth-User"] = user
-    session.headers["X-Auth-Key"] = access_key
-    session.headers["User-Agent"] = "rackspacecloud_ruby_gem"
+    session.headers.merge("X-Auth-User" => user, "X-Auth-Key" => access_key, "User-Agent" => "rackspacecloud_ruby_gem")
     response = session.get("/v#{API_VERSION}")
     
     case response.status

@@ -36,11 +36,11 @@ module RackspaceCloud
 
     protected
 
-    def populate(image_json)
+    def populate(image_json) 
       @rackspace_id = image_json['id']
       @name         = image_json['name']
-      @created      = DateTime.parse(image_json['created'])
-      @updated      = DateTime.parse(image_json['updated'])
+      @created      = DateTime.parse(image_json['created']) unless image_json['created'].nil?
+      @updated      = DateTime.parse(image_json['updated']) unless image_json['updated'].nil?
       @status       = image_json['status']
       @progress     = image_json['progress']
     end

@@ -81,33 +81,20 @@ module RackspaceCloud
 
     def request(path, options={})
       raise RuntimeError, "Please authorize before using by calling connect()" unless authorized?
-      @session ||= begin
-        s = Patron::Session.new
-        s.base_url = @server_management_url
-        s.headers['X-Auth-Token'] = @auth_token
-        s.headers["User-Agent"] = "rackspacecloud_ruby_gem"
-        s.timeout = 10
-        s
-      end
       response = case options[:method]
-      when :post
-        @session.headers['Accept'] = "application/json"
-        @session.headers['Content-Type'] = "application/json"
-        @session.post("#{path}", options[:data].to_json)
-      when :put
-        @session.headers['Content-Type'] = "application/json"
-        @session.put("#{path}", options[:data].to_json)      
+      when :post, :put
+        session.headers.merge('Accept' => "application/json", 'Content-Type' => "application/json")
+        session.send(options[:method], "#{path}", options[:data].to_json)
       when :delete
-        @session.delete("#{path}")
+        session.delete("#{path}")
       else      
-        @session.get("#{path}.json")
+        session.get("#{path}.json")
       end
 
       case response.status
-      when 200, 201, 202, 204
+      when (200..204)
         JSON.parse(response.body) unless response.body.empty?
       else
-        puts response.body
         raise RuntimeError, "Error fetching #{path}: #{response.status}"
       end
     end
@@ -119,7 +106,7 @@ module RackspaceCloud
     protected
 
     def validate_config(config)
-      errors = []
+      errors = [] 
       (config[:user] && config[:user].length) || errors << "missing username"
       (config[:access_key] && config[:access_key].length) || errors << "missing access_key"
       raise(ArgumentError, "Error: invalid configuration: #{errors.join(';')}") unless errors.empty?
@@ -131,6 +118,15 @@ module RackspaceCloud
       @storage_token = url_hash['X-Storage-Token']
       @cdn_management_url = url_hash['X-CDN-Management-Url'] 
       @auth_token = url_hash['X-Auth-Token']
+    end 
+    
+    def session
+      @session ||= returning Patron::Session.new do |s|
+        s.base_url = @server_management_url
+        s.headers['X-Auth-Token'] = @auth_token
+        s.headers["User-Agent"] = "rackspacecloud_ruby_gem"
+        s.timeout = 10
+      end
     end
   end
 end
