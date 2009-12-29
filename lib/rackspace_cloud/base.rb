@@ -83,7 +83,7 @@ module RackspaceCloud
       raise RuntimeError, "Please authorize before using by calling connect()" unless authorized?
       response = case options[:method]
       when :post, :put
-        session.headers.merge('Accept' => "application/json", 'Content-Type' => "application/json")
+        session.headers.merge!('Accept' => "application/json", 'Content-Type' => "application/json")
         session.send(options[:method], "#{path}", options[:data].to_json)
       when :delete
         session.delete("#{path}")
