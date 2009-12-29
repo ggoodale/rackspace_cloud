@@ -29,13 +29,14 @@ module RackspaceCloud
   def RackspaceCloud.request_authorization(user, access_key)
     session = Patron::Session.new
     session.base_url = BASE_AUTH_URI
-    session.headers.merge("X-Auth-User" => user, "X-Auth-Key" => access_key, "User-Agent" => "rackspacecloud_ruby_gem")
+    session.headers.merge!("X-Auth-User" => user, "X-Auth-Key" => access_key, "User-Agent" => "rackspacecloud_ruby_gem")
     response = session.get("/v#{API_VERSION}")
     
     case response.status
     when 204 # "No Content", which means success
       response.headers
-    else 
+    else           
+      puts response.body
       raise AuthorizationError, "Error during authorization: #{response.status}"
     end
   end
