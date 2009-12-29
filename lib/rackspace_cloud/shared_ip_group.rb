@@ -2,9 +2,9 @@ module RackspaceCloud
   class SharedIPGroup
     attr_reader :rackspace_id, :name, :servers
 
-    def initialize(base, group_json)
+    def initialize(base, params)
       @base = base
-      populate(group_json)
+      populate(params)
     end
 
     def delete
@@ -21,12 +21,12 @@ module RackspaceCloud
 
     protected
 
-    def populate(group_json)
-      puts group_json.inspect
-      @rackspace_id = group_json['id']
-      @name = group_json['name']
-      unless group_json['servers'].nil?
-        @servers = @base.servers.select{|server| group_json['servers'].include? server.rackspace_id}
+    def populate(params)
+      puts params.inspect
+      @rackspace_id = params['id']
+      @name = params['name']
+      unless params['servers'].nil?
+        @servers = @base.servers.select{|server| params['servers'].include? server.rackspace_id}
       end
     end
   end

@@ -21,9 +21,11 @@ begin
     gemspec.authors = ["Grant Goodale"]
     gemspec.files.exclude("**/.gitignore")
     gemspec.add_dependency('patron', '>= 0.4.0')
+    gemspec.add_development_dependency('shoulda', '>= 2.10')
+    gemspec.add_development_dependency('mocha', '>= 0.9.4')
   end
 rescue LoadError
-  puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
+  puts "Jeweler not available. Install it with: sudo gem install jeweler"
 end
  
  

@@ -1,6 +1,6 @@
 module RackspaceCloud
   class Base
-    attr_reader :user, :access_key, :auth_token
+    attr_reader :user, :access_key, :auth_token, :session
 
     def initialize(config={})
       validate_config(config)
@@ -10,7 +10,7 @@ module RackspaceCloud
     end
 
     def connect
-      configure_service_urls(RackspaceCloud.request_authorization(@user, @access_key))
+      configure_services(RackspaceCloud.request_authorization(@user, @access_key))
       RackspaceCloud.check_version_compatibility
       @authorized = true
       populate_flavors
@@ -112,7 +112,7 @@ module RackspaceCloud
       raise(ArgumentError, "Error: invalid configuration: #{errors.join(';')}") unless errors.empty?
     end
     
-    def configure_service_urls(url_hash = {})
+    def configure_services(url_hash = {})
       @server_management_url = url_hash['X-Server-Management-Url']
       @storage_url = url_hash['X-Storage-Url']
       @storage_token = url_hash['X-Storage-Token']

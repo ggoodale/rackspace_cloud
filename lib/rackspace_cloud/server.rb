@@ -6,9 +6,9 @@ module RackspaceCloud
 
     STATUS_VALUES = %w{ACTIVE BUILD REBUILD SUSPENDED QUEUE_RESIZE PREP_RESIZE VERIFY_RESIZE PASSWORD RESCUE REBOOT HARD_REBOOT SHARE_IP SHARE_IP_NO_CONFIG DELETE_IP UNKNOWN}
 
-    def initialize(base, server_json)
+    def initialize(base, params)
       @base = base
-      populate(server_json)
+      populate(params)
     end
     
     def ready?
@@ -72,17 +72,17 @@ module RackspaceCloud
       @base.request("/servers/#{@rackspace_id}/action", :method => :post, :data => data)      
     end
     
-    def populate(server_json)
-      @name = server_json['name']
-      @status = server_json['status']
-      @flavor = @base.flavors[server_json['flavorId']]
-      @image = @base.images[server_json['imageId']]
-      @rackspace_id = server_json['id']
-      @host_id = server_json['hostId']
-      @progress = server_json['progress']
-      @public_ips = server_json['addresses']['public']
-      @private_ips = server_json['addresses']['private']
-      @adminPass = server_json['adminPass']
+    def populate(params)
+      @name = params['name']
+      @status = params['status']
+      @flavor = @base.flavors[params['flavorId']]
+      @image = @base.images[params['imageId']]
+      @rackspace_id = params['id']
+      @host_id = params['hostId']
+      @progress = params['progress']
+      @public_ips = params['addresses']['public']
+      @private_ips = params['addresses']['private']
+      @adminPass = params['adminPass']
     end
   end
 end

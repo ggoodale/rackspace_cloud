@@ -15,9 +15,9 @@ module RackspaceCloud
       end
     end
     
-    def initialize(base, image_json)
+    def initialize(base, params)
       @base = base
-      populate(image_json)
+      populate(params)
     end
 
     def delete
